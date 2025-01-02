@@ -61,4 +61,6 @@ coverage.xml
 # Data directories
 datasets/
 saved_folder/
+feature_IID/
+feature_heteroginity/
 
