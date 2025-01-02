@@ -50,10 +50,11 @@ class DataFeed(Dataset):
 
 
 ############### Create data sample list #################
-def create_data_sample(data_csv, shuffle=False, nat_sort=False):
+def create_data_sample(root, shuffle=False, nat_sort=False):
+    f = pd.read_csv(root)
     data_samples = []
     pred_val = []
-    for idx, row in data_csv.iterrows():
+    for idx, row in f.iterrows():
         img_paths = row.values[5:7]
         features = row.values[1:5]
         data_samples.append([features, img_paths])
@@ -65,11 +66,10 @@ class DataFeed_image_pos(Dataset):
     A class retrieving a tuple of (image,label). It can handle the case
     of empty classes (empty folders).
     '''
-    def __init__(self,data_csv, nat_sort = False, transform=None, init_shuflle = True, modalities=["pos_height", "images"]):
-        self.datacsv = data_csv
-        self.samples = create_data_sample(self.datacsv,shuffle=init_shuflle,nat_sort=nat_sort)
+    def __init__(self,root_dir, nat_sort = False, transform=None, init_shuflle = True):
+        self.root = root_dir
+        self.samples = create_data_sample(self.root,shuffle=init_shuflle,nat_sort=nat_sort)
         self.transform = transform
-        self.modalities = modalities
 
 
     def __len__(self):
@@ -79,13 +79,13 @@ class DataFeed_image_pos(Dataset):
         sample = self.samples[idx]
         pos = sample[0].astype(np.float32)
         img = io.imread(sample[1][0])
-        if self.transform and "images" in self.modalities:
-            img = self.transform(img)
+        img = self.transform(img)
         label = sample[1][1]
-        if "pos_height" in self.modalities and "images" in self.modalities:
-            return (pos, img, label)
-        elif "pos_height" in self.modalities:
-            return (pos,label)
-        else:
-            return (img,label)
+        #if "pos_height" in self.modalities and "images" in self.modalities:
+        #    return (pos, img, label)
+        #elif "pos_height" in self.modalities:
+        #    return (pos,label)
+        #else:
+        #    return (img,label)
+        return ({"pos_height": pos, "images": img}, label)
 

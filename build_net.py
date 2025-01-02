@@ -278,4 +278,26 @@ def resnet34(pretrained=False, progress=True, **kwargs):
         progress (bool): If True, displays a progress bar of the download to stderr
     """
     return _resnet('resnet34', BasicBlock, [3, 4, 6, 3], pretrained, progress,
-                   **kwargs)                 
+                   **kwargs)     
+
+node = 512
+
+class NN_beam_pred(nn.Module):
+        def __init__(self, num_features, num_output):
+            super(NN_beam_pred, self).__init__()
+            
+            self.layer_1 = nn.Linear(num_features, node)
+            self.layer_2 = nn.Linear(node, node)
+            self.layer_3 = nn.Linear(node, node)
+            self.layer_out = nn.Linear(node, num_output)
+            
+            self.relu = nn.ReLU()
+            
+            
+            
+        def forward(self, inputs):
+            x = self.relu(self.layer_1(inputs))
+            x = self.relu(self.layer_2(x))
+            x = self.relu(self.layer_3(x))
+            y = self.layer_out(x)
+            return x, y      
