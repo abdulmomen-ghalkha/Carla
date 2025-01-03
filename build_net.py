@@ -300,4 +300,13 @@ class NN_beam_pred(nn.Module):
             x = self.relu(self.layer_2(x))
             x = self.relu(self.layer_3(x))
             y = self.layer_out(x)
-            return x, y      
+            return x, y
+
+
+class MultinomialLogisticRegression(nn.Module):
+    def __init__(self, input_size, num_classes):
+        super(MultinomialLogisticRegression, self).__init__()
+        self.linear = nn.Linear(input_size, num_classes)
+
+    def forward(self, x):
+        return self.linear(x)
