@@ -59,8 +59,21 @@ coverage.xml
 
 
 # Data directories
-datasets/
-saved_folder/
-feature_IID/
-feature_heteroginity/
+# Ignore everything in the specified directories
+datasets/*
+saved_folder/*
+feature_IID/*
+feature_heteroginity/*
+image_beam/*
+pos_beam/*
+pos_height_beam/*
 
+
+# Include the main directories explicitly
+!datasets/
+!saved_folder/
+!feature_IID/
+!feature_heteroginity/
+!image_beam/
+!pos_beam/
+!pos_height_beam/
