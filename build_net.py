@@ -162,9 +162,10 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
                                        dilate=replace_stride_with_dilation[1])
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[2])
+                                       dilate=replace_stride_with_dilation[2]) 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * block.expansion, self.output_dim)
+        self.fc_reduce = nn.Linear(512 * block.expansion, 128)  # Reduce dimension to 128
+        self.fc = nn.Linear(128, self.output_dim) 
         #self.fc = nn.Linear(128, self.output_dim)
 
         for m in self.modules():
@@ -225,6 +226,7 @@ class ResNet(nn.Module):
         #x = self.relu(x)
         #x = self.fc2(x)
         #x = self.relu(x)
+        y = self.fc_reduce(y)
         out = self.fc(y)
         return y, out
 
@@ -242,8 +244,11 @@ def _resnet(arch, block, layers, pretrained, progress, **kwargs):
                 num_classes = kwargs[key]
 
         if num_classes != 1000:
+            state_dict['fc_reduce.weight'] = nn.init.xavier_normal_(model.fc_reduce.weight, gain=1)
+            state_dict['fc_reduce.bias'] = nn.init.constant_(model.fc_reduce.bias, val=0)
             state_dict['fc.weight'] = nn.init.xavier_normal_(model.fc.weight, gain=1)
             state_dict['fc.bias'] = nn.init.constant_(model.fc.bias, val=0)
+            
 
         model.load_state_dict(state_dict)
     return model
@@ -280,7 +285,7 @@ def resnet34(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet34', BasicBlock, [3, 4, 6, 3], pretrained, progress,
                    **kwargs)     
 
-node = 512
+node = 128
 
 class NN_beam_pred(nn.Module):
         def __init__(self, num_features, num_output):
